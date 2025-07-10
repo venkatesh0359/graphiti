@@ -74,22 +74,40 @@ def v2(context: dict[str, Any]) -> list[Message]:
     return [
         Message(
             role='system',
-            content='You are an AI assistant that determines which facts contradict each other.',
+            content='You are an AI assistant that identifies contradictions between facts in a knowledge graph, with special attention to information that evolves over time and belongs to specific entities.',
         ),
         Message(
             role='user',
             content=f"""
-               Based on the provided EXISTING FACTS and a NEW FACT, determine which existing facts the new fact contradicts.
-               Return a list containing all ids of the facts that are contradicted by the NEW FACT.
-               If there are no contradicted facts, return an empty list.
+               Determine which existing facts are contradicted by the new fact. A contradiction occurs when:
+               
+               1. Facts contain directly conflicting information about the same attribute of the same entity (e.g., different values, status changes)
+               2. Facts represent different states of the same entity or relationship that cannot be simultaneously true
+               3. The new fact explicitly updates or supersedes an older fact about the same entity
+               4. The new fact implies organizational or structural changes that make previous representations invalid
+               5. Facts contain temporal indicators like "now", "previously", "changed to" that signal a state change
+               
+               Pay special attention to:
+               - User ownership: Facts about different users should not contradict each other
+               - Domain specificity: Changes in one domain (phones, books, food) should not affect other domains
+               - Entity boundaries: Only consider contradictions within the same entity boundary
+               
+               Do not mark facts as contradictory if they:
+               - Provide complementary information about different attributes
+               - Represent partial information that can coexist with the new fact
+               - Merely add detail without invalidating previous information
+               - Belong to different users or entities
+               - Represent preferences in different domains
+               
+               Return the IDs of all existing facts that are contradicted by the new fact. If no contradictions exist, return an empty list.
 
-                <EXISTING FACTS>
-                {context['existing_edges']}
-                </EXISTING FACTS>
+               <EXISTING FACTS>
+               {context['existing_edges']}
+               </EXISTING FACTS>
 
-                <NEW FACT>
-                {context['new_edge']}
-                </NEW FACT>
+               <NEW FACT>
+               {context['new_edge']}
+               </NEW FACT>
             """,
         ),
     ]
