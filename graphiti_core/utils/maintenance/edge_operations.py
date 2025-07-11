@@ -259,7 +259,7 @@ async def resolve_extracted_edges(
 
     search_results = await semaphore_gather(
         get_relevant_edges(driver, extracted_edges, SearchFilters()),
-        get_edge_invalidation_candidates(driver, extracted_edges, SearchFilters(), 0.2),
+        get_edge_invalidation_candidates(driver, extracted_edges, SearchFilters(), 0.7),
     )
 
     related_edges_lists, edge_invalidation_candidates = search_results
