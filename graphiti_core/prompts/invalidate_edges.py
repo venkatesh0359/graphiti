@@ -92,12 +92,22 @@ def v2(context: dict[str, Any]) -> list[Message]:
                - Domain specificity: Changes in one domain (phones, books, food) should not affect other domains
                - Entity boundaries: Only consider contradictions within the same entity boundary
                
+               CRITICAL HANDLING RULES:
+               - Multiple preferences within the same domain (e.g., food) CAN and SHOULD coexist (liking Italian food, sushi, and chocolate simultaneously)
+               - A user can have MULTIPLE valid preferences within the same domain - these are NOT contradictions
+               - A general preference and a specific preference in the same category BOTH remain valid (liking fiction generally AND science fiction specifically)
+               - Cross-domain updates (e.g., changing phone preference) MUST NEVER invalidate preferences in other domains (e.g., book or food preferences)
+               - Only explicit contradictions of the EXACT SAME preference should trigger invalidation
+               - If there is ANY ambiguity about whether facts contradict, assume they DO NOT contradict
+               
                Do not mark facts as contradictory if they:
                - Provide complementary information about different attributes
                - Represent partial information that can coexist with the new fact
                - Merely add detail without invalidating previous information
                - Belong to different users or entities
                - Represent preferences in different domains
+               - Are multiple valid preferences within the same domain (e.g., liking multiple foods)
+               - One is general and one is specific within the same category
                
                Return the IDs of all existing facts that are contradicted by the new fact. If no contradictions exist, return an empty list.
 
